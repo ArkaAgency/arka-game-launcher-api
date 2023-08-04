@@ -9,6 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes handling
 app.use('/update/game', require('./routes/update/game.routes'));
+app.use('/download', require('./routes/download.routes'));
 
 // App starting
 app.listen(port, () => console.log(`Server is now listening on port ${port}`));
