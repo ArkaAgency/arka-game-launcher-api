@@ -2,7 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 function getDownloadFile(req, res) {
-    const { type, filename } = req.params;
+    const { filename, prefix } = req.params;
+
+
+    const prefixArray = prefix.split('/');
+    const type = prefixArray.shift() || prefix;
+    const nextPrefix = prefixArray.join('/');
 
     const validTypes = ['game', 'java', 'mods'];
     if (!validTypes.includes(type)) return res.status(400).json({
@@ -15,7 +20,7 @@ function getDownloadFile(req, res) {
         }
     });
 
-    const filePath = path.join(__dirname, '../../public/', type, filename);
+    const filePath = path.join(__dirname, '../../public/', type, nextPrefix, filename);
     if (!fs.existsSync(filePath)) return res.status(400).json({
         success: false,
         error: {

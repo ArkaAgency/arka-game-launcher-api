@@ -2,7 +2,7 @@ const fs = require('fs');
 const _path = require('path');
 const { createHash } = require('crypto');
 
-function getFiles(path, dirs) {
+function getFiles(path, dirs, prefix) {
     let files = [];
 
     dirs.forEach(dirName => {
@@ -15,7 +15,7 @@ function getFiles(path, dirs) {
                 const hash = createHash('md5').update(buff).digest('hex');
                 const fileObj = {
                     filename: _path.join(dirName, f).replaceAll('\\', '/'),
-                    downloadLink: 'http://localhost:4004/download/game/' + (encodeURIComponent(_path.join(dirName, f).replaceAll('\\', '/'))),
+                    downloadLink: 'http://localhost:4004/download/' + (encodeURIComponent(_path.join(dirName, f).replaceAll('\\', '/'))) + `/${encodeURIComponent(prefix)}`,
                     md5: hash
                 };
                 files.push(fileObj);

@@ -2,6 +2,6 @@ const express = require('express');
 const getDownloadFile = require('../controllers/download.controller');
 const router = express.Router();
 
-router.get('/:type/:filename', getDownloadFile);
+router.get('/:filename/:prefix', getDownloadFile);
 
 module.exports = router;
