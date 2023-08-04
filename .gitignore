@@ -3,3 +3,6 @@ dist/
 buid/
 out/
 .env
+public/game
+public/java
+public/mods
