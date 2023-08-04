@@ -1,21 +1,32 @@
+const getDirs = require('../../utils/getDirs');
+const getFiles = require('../../utils/getFiles');
+const path = require('path');
+
 function getJavaData(req, res) {
-    windows_x64(req, res);
-}
+    const { platform } = req.params;
 
-function windows_x64(req, res) {
-    res.json({});
-}
+    const allowedPlatforms = [
+        'windows_x32', 'windows_x64'
+    ];
+    if (!allowedPlatforms.includes(platform)) return res.status(400).json({
+        success: false,
+        error: {
+            message: {
+                en: 'This Java platform isnt allowed!',
+                fr: 'Cette plateforme Java est inaccessible !'
+            }
+        }
+    });
 
-function windows_x32(req, res) {
-    res.json({});
-}
+    const javaFilesPath = path.join(__dirname, '../../../public/java/', platform);
+    let folders = getDirs(javaFilesPath);
+    let files = getFiles(javaFilesPath, folders, `java/${platform}/`);
 
-function linux(req, res) {
-    res.json({});
-}
-
-function macOs(req, res) {
-    res.json({});
+    res.json({
+        success: true,
+        folders,
+        files
+    });
 }
 
 module.exports = getJavaData;
