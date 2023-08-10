@@ -9,6 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes handling
 app.use('/update/game', require('./routes/update/game.routes'));
+app.use('/update/mods', require('./routes/update/mods.routes'));
 app.use('/update/java', require('./routes/update/java.routes'));
 app.use('/download', require('./routes/download.routes'));
 
