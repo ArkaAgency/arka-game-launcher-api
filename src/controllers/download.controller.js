@@ -2,8 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 function getDownloadFile(req, res) {
-    const { filename, prefix } = req.params;
+    let { filename, prefix } = req.params;
 
+    let filenameBuffer = new Buffer(filename, 'base64');
+    filename = filenameBuffer.toString('ascii');
+
+    let prefixBuffer = new Buffer(prefix, 'base64');
+    prefix = prefixBuffer.toString('ascii');
 
     const prefixArray = prefix.split('/');
     const type = prefixArray.shift() || prefix;
