@@ -5,7 +5,7 @@ const app = express();
 
 // Middle ware to proccess request data
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
 // Routes handling
 app.use('/update/game', require('./routes/update/game.routes'));
