@@ -16,6 +16,7 @@
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "jarfile": "^2.0.0",
+    "request": "^2.88.2",
     "util": "^0.12.5"
   },
   "devDependencies": {
