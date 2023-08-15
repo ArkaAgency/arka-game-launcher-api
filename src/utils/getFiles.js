@@ -12,7 +12,7 @@ function getFiles(path, dirs, prefix) {
             const isFile = fs.lstatSync(filename).isFile();
             if (isFile) {
                 const buff = fs.readFileSync(filename);
-                const hash = createHash('md5').update(buff).digest('hex');
+                const hash = createHash('sha1').update(buff).digest('base64');
 
                 const _filename = _path.join(dirName, f).replaceAll('\\', '/');
                 const filenameBuffer = new Buffer(_filename);
@@ -24,7 +24,7 @@ function getFiles(path, dirs, prefix) {
                 const fileObj = {
                     filename: _path.join(dirName, f).replaceAll('\\', '/'),
                     downloadLink: 'https://api.modded.arka-group.io/download/' + filebaseBase64 + `/${prefixBase64}`,
-                    md5: hash
+                    sha1: hash
                 };
                 files.push(fileObj);
             }

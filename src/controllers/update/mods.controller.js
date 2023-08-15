@@ -20,7 +20,7 @@ async function getModsData(req, res) {
         const modType = fileData.filename.split('/')[fileData.filename.split('/').length - 2];
         const modFilename = path.join(__dirname, '../../../public/mods/', fileData.filename);
         const modBuffer = fs.readFileSync(modFilename);
-        const modHash = createHash('md5').update(modBuffer).digest('hex');
+        const modHash = createHash('sha1').update(modBuffer).digest('base64');
 
         let jarInfos;
         try {
@@ -66,7 +66,7 @@ async function getModsData(req, res) {
                 name: jarInfos.name,
                 author: jarInfos.author,
                 version: jarInfos.version,
-                md5: modHash,
+                sha1: modHash,
                 filename: fileData.filename.split('/')[fileData.filename.split('/').length - 1],
             }
         );
