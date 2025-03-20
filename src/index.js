@@ -18,6 +18,7 @@ app.use(
 
 // Routes handling
 app.use("/auth/microsoft", require("./routes/auth/microsoft.routes"));
+app.use("/update/launcher", require("./routes/update/launcher.routes"));
 app.use("/update/game", require("./routes/update/game.routes"));
 app.use("/update/mods", require("./routes/update/mods.routes"));
 app.use("/update/java", require("./routes/update/java.routes"));
