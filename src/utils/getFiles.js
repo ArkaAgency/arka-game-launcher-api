@@ -1,37 +1,49 @@
-const fs = require('fs');
-const _path = require('path');
-const { createHash } = require('crypto');
+const fs = require("fs/promises");
+const path = require("path");
 
-function getFiles(path, dirs, prefix) {
-    let files = [];
+async function getFiles(basePath, dirs, prefix) {
+  let files = [];
+  let totalDirs = dirs.length;
+  let processedDirs = 0;
 
-    dirs.forEach(dirName => {
-        const dirPath = _path.join(path, dirName);
-        fs.readdirSync(dirPath).forEach((f) => {
-            const filename = _path.join(dirPath, f);
-            const isFile = fs.lstatSync(filename).isFile();
-            if (isFile) {
-                const buff = fs.readFileSync(filename);
-                const hash = createHash('sha1').update(buff).digest('base64');
+  for (const dirName of dirs) {
+    try {
+      const dirPath = path.join(basePath, dirName);
 
-                const _filename = _path.join(dirName, f).replaceAll('\\', '/');
-                const filenameBuffer = new Buffer(_filename);
-                const filebaseBase64 = filenameBuffer.toString('base64');
+      // Vérifie si le dossier existe avant d'essayer de le lire
+      try {
+        await fs.access(dirPath);
+      } catch {
+        console.warn(`⚠️ Dossier introuvable : ${dirPath}`);
+        continue; // Passe au dossier suivant
+      }
 
-                const prefixBuffer = new Buffer(prefix);
-                const prefixBase64 = prefixBuffer.toString('base64');
+      const dirEntries = await fs.readdir(dirPath, { withFileTypes: true });
 
-                const fileObj = {
-                    filename: _path.join(dirName, f).replaceAll('\\', '/'),
-                    downloadLink: 'https://api.modded.arka-group.io/download/' + filebaseBase64 + `/${prefixBase64}`,
-                    sha1: hash
-                };
-                files.push(fileObj);
-            }
-        });
-    });
+      for (const entry of dirEntries) {
+        if (entry.isFile()) {
+          const filename = path.join(dirName, entry.name).replace(/\\/g, "/");
+          const fileBase64 = Buffer.from(filename).toString("base64");
+          const prefixBase64 = Buffer.from(prefix).toString("base64");
 
-    return files;
+          files.push({
+            filename,
+            downloadLink: `${process.env.API_HOSTNAME}/download/${fileBase64}/${prefixBase64}`,
+          });
+        }
+      }
+
+      // Affiche la progression en pourcentage
+      processedDirs++;
+      console.log(
+        `📂 Progression : ${((processedDirs / totalDirs) * 100).toFixed(2)}% (${processedDirs}/${totalDirs})`
+      );
+    } catch (err) {
+      console.error(`❌ Erreur lors de la lecture du dossier ${dirName}:`, err);
+    }
+  }
+
+  return files;
 }
 
 module.exports = getFiles;
