@@ -1,4 +1,4 @@
-const express = require("express");
+import express from "express";
 const {
   getGameData,
   getGameVersion,
@@ -8,4 +8,4 @@ const router = express.Router();
 router.get("/", getGameData);
 router.get("/version", getGameVersion);
 
-module.exports = router;
+export default router;

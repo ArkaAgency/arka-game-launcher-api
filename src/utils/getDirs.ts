@@ -1,8 +1,8 @@
-const fs = require("fs/promises");
-const path = require("path");
+import { promises as fs } from "fs";
+import path from "path";
 
-async function getDirs(basePath, ext = "") {
-  let folders = [];
+async function getDirs(basePath: string, ext = "") {
+  let folders: string[] = [];
 
   try {
     // Vérifie si le dossier existe avant de lire
@@ -28,4 +28,4 @@ async function getDirs(basePath, ext = "") {
   return folders;
 }
 
-module.exports = getDirs;
+export default getDirs;

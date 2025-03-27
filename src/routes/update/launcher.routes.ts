@@ -1,4 +1,4 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 const {
   getLauncherVersion,
@@ -6,4 +6,4 @@ const {
 
 router.get("/version", getLauncherVersion);
 
-module.exports = router;
+export default router;

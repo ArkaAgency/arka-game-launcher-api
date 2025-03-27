@@ -1,12 +1,15 @@
-const path = require("path");
-require("dotenv").config({
-  path: path.join(__dirname, "../../../.env"),
-});
-const request = require("request");
-const {
+import { Request, Response } from "express";
+import path from "path";
+import request from "request";
+import dotenv from "dotenv";
+import {
   generateCodeChallenger,
   generateCodeVerifier,
-} = require("../../utils/ms-code-verifier");
+} from "../../utils/ms-code-verifier";
+import { errorBuilder } from "../../utils/errorBuilder";
+dotenv.config({
+  path: path.join(__dirname, "../../../.env"),
+});
 
 const MICROSOFT = {
   clientId: process.env.MICROSOFT_CLIENT_ID,
@@ -25,7 +28,7 @@ const MICROSOFT = {
   },
 };
 
-function parseJwt(token) {
+function parseJwt(token: string) {
   var base64Url = token.split(".")[1];
   var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
   var jsonPayload = decodeURIComponent(
@@ -40,7 +43,7 @@ function parseJwt(token) {
 }
 
 const microsoftApi = {
-  getToken(code, codeVerifier) {
+  getToken(code: string, codeVerifier: string): Promise<any> {
     const url = MICROSOFT.LINKS.liveToken;
 
     console.log(codeVerifier);
@@ -63,7 +66,7 @@ const microsoftApi = {
           },
           json: true,
         },
-        (err, res, body) => {
+        (err: any, res: any, body: string) => {
           console.log(body);
           if (err) reject(err);
 
@@ -73,7 +76,7 @@ const microsoftApi = {
     });
   },
 
-  authenticate(accessToken) {
+  authenticate(accessToken: string): Promise<any> {
     const url = MICROSOFT.LINKS.authenticate;
 
     return new Promise((resolve, reject) => {
@@ -96,7 +99,7 @@ const microsoftApi = {
           },
           json: true,
         },
-        (err, res, body) => {
+        (err: any, res: any, body: string) => {
           if (err) reject(err);
 
           resolve(body);
@@ -105,7 +108,7 @@ const microsoftApi = {
     });
   },
 
-  getXstsToken(accessToken) {
+  getXstsToken(accessToken: string): Promise<any> {
     const url = MICROSOFT.LINKS.xstsToken;
 
     return new Promise((resolve, reject) => {
@@ -127,7 +130,7 @@ const microsoftApi = {
           },
           json: true,
         },
-        (err, res, body) => {
+        (err: any, res: any, body: string) => {
           if (err) reject(err);
 
           resolve(body);
@@ -136,7 +139,7 @@ const microsoftApi = {
     });
   },
 
-  getMinecraftToken(userHash, xstsToken) {
+  getMinecraftToken(userHash: string, xstsToken: string): Promise<any> {
     const url = MICROSOFT.LINKS.minecraftToken;
 
     return new Promise((resolve, reject) => {
@@ -150,7 +153,7 @@ const microsoftApi = {
           },
           json: true,
         },
-        (err, res, body) => {
+        (err: any, res: any, body: string) => {
           if (err) reject(err);
 
           resolve(body);
@@ -159,7 +162,7 @@ const microsoftApi = {
     });
   },
 
-  getMinecraftOwnership(token) {
+  getMinecraftOwnership(token: string): Promise<any> {
     const url = MICROSOFT.LINKS.minecraftOwnership;
 
     return new Promise((resolve, reject) => {
@@ -172,7 +175,7 @@ const microsoftApi = {
           },
           json: true,
         },
-        (err, res, body) => {
+        (err: any, res: any, body: string) => {
           if (err) reject(err);
 
           resolve(body);
@@ -181,7 +184,7 @@ const microsoftApi = {
     });
   },
 
-  getMinecraftProfile(token) {
+  getMinecraftProfile(token: string): Promise<any> {
     const url = MICROSOFT.LINKS.minecraftProfile;
 
     return new Promise((resolve, reject) => {
@@ -194,7 +197,7 @@ const microsoftApi = {
           },
           json: true,
         },
-        (err, res, body) => {
+        (err: any, res: any, body: string) => {
           if (err) reject(err);
 
           resolve(body);
@@ -204,11 +207,11 @@ const microsoftApi = {
   },
 };
 
-function getMicrosoftAuthLink(req, res) {
+export function getMicrosoftAuthLink(req: Request, res: Response) {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = generateCodeChallenger(codeVerifier);
 
-  req.session.codeVerifier = codeVerifier;
+  (req.session as any).codeVerifier = codeVerifier;
   console.log(req.get("host"));
 
   res.redirect(
@@ -216,11 +219,18 @@ function getMicrosoftAuthLink(req, res) {
   );
 }
 
-async function processMicrosoftAuth(req, res) {
+export async function processMicrosoftAuth(req: Request, res: Response) {
   // it's getting the auth code from params
   const { code } = req.params;
-  const codeVerifier = req.session.codeVerifier;
-  console.log(req.get("host"));
+  const codeVerifier = (req.session as any).codeVerifier;
+
+  if (!codeVerifier)
+    return res.send(
+      errorBuilder({
+        en: "An error has occurred while trying to get the session code verifier.",
+        fr: "Une erreur est survenue lors de la recuperation du token de verification dans la session.",
+      })
+    );
 
   // it's getting microsoft token from code
   const microsoftAccessTokenRequest = await microsoftApi.getToken(
@@ -253,7 +263,7 @@ async function processMicrosoftAuth(req, res) {
 
   // it's checking minecraft ownership
   const hasMinecraftJavaEdition = minecraftOwnershipRequest.items.some(
-    (item) => item.name === "game_minecraft"
+    (item: any) => item.name === "game_minecraft"
   );
   if (!hasMinecraftJavaEdition)
     return res.send({
@@ -268,7 +278,7 @@ async function processMicrosoftAuth(req, res) {
 
   // it's getting minecraft client id
   const minecraftItem = minecraftOwnershipRequest.items.find(
-    (item) => item.name === "game_minecraft"
+    (item: any) => item.name === "game_minecraft"
   );
   const minecraftItemDecoded = parseJwt(minecraftItem.signature);
   const clientId = minecraftItemDecoded.signerId;
@@ -291,16 +301,10 @@ async function processMicrosoftAuth(req, res) {
   });
 }
 
-function hostRedirect(req, res) {
+export function hostRedirect(req: Request, res: Response) {
   const fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
   const urlObject = new URL(fullUrl);
   const searchParams = new URLSearchParams(urlObject.search);
   const code = searchParams.get("code");
   res.redirect("/auth/microsoft/process-auth/" + code);
 }
-
-module.exports = {
-  getMicrosoftAuthLink,
-  processMicrosoftAuth,
-  hostRedirect,
-};

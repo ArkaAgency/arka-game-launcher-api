@@ -1,7 +1,7 @@
-const fs = require("fs/promises");
-const path = require("path");
+import { promises as fs } from "fs";
+import path from "path";
 
-async function getFiles(basePath, dirs, prefix) {
+async function getFiles(basePath: string, dirs: string[], prefix: string) {
   let files = [];
   let totalDirs = dirs.length;
   let processedDirs = 0;
@@ -35,9 +35,6 @@ async function getFiles(basePath, dirs, prefix) {
 
       // Affiche la progression en pourcentage
       processedDirs++;
-      console.log(
-        `📂 Progression : ${((processedDirs / totalDirs) * 100).toFixed(2)}% (${processedDirs}/${totalDirs})`
-      );
     } catch (err) {
       console.error(`❌ Erreur lors de la lecture du dossier ${dirName}:`, err);
     }
@@ -46,4 +43,4 @@ async function getFiles(basePath, dirs, prefix) {
   return files;
 }
 
-module.exports = getFiles;
+export default getFiles;

@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UpdateType {
+  COBBLEMON_BASE
+  COBBLEMON_PATCH
+}
+
+model Update {
+  id            Int        @id @default(autoincrement())
+  name          String     @unique
+  type          UpdateType @default(COBBLEMON_BASE)
+  filename      String
+  createdAt     DateTime   @default(now())
+  versionString String
+}
+
+model PatchNote {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  html        String
+}
